@@ -134,43 +134,55 @@ public class RestaurantService {
         return deliveryGuyResponses;
 
     }
-    public RestaurantResponse putRating(String restaurantName,Integer rating, Authentication authentication){
+    @Transactional
+    public RestaurantResponse putRating(String restaurantName, Integer rating, Authentication authentication) {
         int sum = 0;
-        int avarage;
+        int average;
         Restaurant restaurant = repo.findByName(restaurantName);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Customer authenticatedCustomer = customerRepo.findCustomerByUsername(userDetails.getUsername());
-        Boolean hasRated = authenticatedCustomer.getHasRated();
 
+        if (authenticatedCustomer != null) {
+            List<Restaurant> ratedRestaurants = authenticatedCustomer.getRestaurants();
 
-        if(authenticatedCustomer != null) {
-            if (hasRated == null) {
-                RestaurantRating restaurantRating = RestaurantRating.builder()
-                        .rating(rating)
-                        .restaurant(restaurant)
-                        .build();
-                List<RestaurantRating> restaurantRatings = restaurant.getRatings();
-                restaurantRatings.add(restaurantRating);
-                restaurant.setRatings(restaurantRatings);
-                for (RestaurantRating restaurantRating1 : restaurant.getRatings()) {
-                    sum += restaurantRating1.getRating();
-
+            for (Restaurant restaurant1 : ratedRestaurants) {
+                if (restaurant1 != null && restaurant1.getName().equals(restaurantName)) {
+                    throw new CannotRate("You have already rated!");
                 }
-                avarage = sum / restaurantRatings.size();
-                restaurant.setRating(avarage);
-                authenticatedCustomer.setHasRated(true);
-                customerRepo.save(authenticatedCustomer);
-                repo.save(restaurant);
-
-
-            }else {
-                throw new CannotRate("You have already rated!");
             }
-        }
-        RestaurantResponse restaurantResponse = restaurantMapper.responseFromModelOne(restaurant);
 
+            RestaurantRating restaurantRating = RestaurantRating.builder()
+                    .rating(rating)
+                    .restaurant(restaurant)
+                    .build();
+
+            List<RestaurantRating> restaurantRatings = restaurant.getRatings();
+            restaurantRatings.add(restaurantRating);
+            restaurant.setRatings(restaurantRatings);
+
+            for (RestaurantRating restaurantRating1 : restaurant.getRatings()) {
+                sum += restaurantRating1.getRating();
+            }
+
+            ratedRestaurants.add(restaurant);
+            authenticatedCustomer.setRestaurants(ratedRestaurants);
+
+            average = sum / restaurantRatings.size();
+            restaurant.setRating(average);
+
+            List<Customer> customers = new ArrayList<>();
+            customers.add(authenticatedCustomer);
+            restaurant.setCustomers(customers);
+
+            // Save both entities
+            repo.save(restaurant);
+            customerRepo.save(authenticatedCustomer);
+        } else {
+            throw new CannotRate("This is the error");
+        }
+
+        RestaurantResponse restaurantResponse = restaurantMapper.responseFromModelOne(restaurant);
         return restaurantResponse;
     }
-
 
 }

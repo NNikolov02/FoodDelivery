@@ -121,12 +121,12 @@ public class CustomerService {
 
         return cartResponse;
     }
-    @Transactional
-    public void purchaseCart(Authentication authentication){
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Customer authenticatedCustomer = repo.findCustomerByUsername(userDetails.getUsername());
-        cartRepository.deleteByCustomerName(authenticatedCustomer.getUsername());
-    }
+//    @Transactional
+//    public void purchaseCart(Authentication authentication){
+//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+//        Customer authenticatedCustomer = repo.findCustomerByUsername(userDetails.getUsername());
+//        cartRepository.deleteByCustomerName(authenticatedCustomer.getUsername());
+//    }
 //    public String rating(Appointment appointment, Doctor doctor, SetRatingRequest request){
 //
 //        if(appointment.getDoctor() == doctor) {

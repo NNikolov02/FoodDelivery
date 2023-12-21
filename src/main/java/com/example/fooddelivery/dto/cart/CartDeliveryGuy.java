@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class CartResponse {
+public class CartDeliveryGuy {
     private UUID id;
     private String location;
     private LocalTime createTime;
@@ -23,11 +23,11 @@ public class CartResponse {
 
     private CustomerDto customer;
     private DeliveryGuyDto deliveryGuy;
-    private List<PizzaDto>pizzas;
+    private List<PizzaDto> pizzas;
     private List<SteakDto>steaks;
     private List<SaladDto>salads;
     private List<PastaDto>pastas;
 
     private Integer fullPrice;
-    private String finish;
+    private String isDelivered;
 }

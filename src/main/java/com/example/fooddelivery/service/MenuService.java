@@ -63,38 +63,41 @@ public class MenuService {
     }
 
     public Menu getMenu(){
-        String id = "e4ba926d-651d-4f37-8a95-4ebf111d70d2";
+        String id = "c973ad83-9288-430e-90b3-0cc7980f01a7";
         return repo.findById(UUID.fromString(id)).orElse(null);
     }
-    public PizzaResponse findPizza(String pizzaName){
+    public Menu getMenuByName(String name){
+        return repo.findByName(name);
+    }
+    public PizzaResponse findPizza(String pizzaName,String restaurantName){
         Pizza pizza = pizzaRepo.findByName(pizzaName);
         PizzaResponse pizzaResponse = pizzaMapper.responseFromModel(pizza);
-        pizzaResponse.setAddToCart("http://localhost:8084/delivery/cart/pizza?pizzaName=" + pizza.getName());
-        pizzaResponse.setUrl("http://localhost:8084/delivery/menu/pizza/" + pizza.getName());
+        pizzaResponse.setAddToCart("http://localhost:8084/delivery/cart/" + restaurantName + "/pizza?pizzaName=" + pizza.getName());
+//        pizzaResponse.setUrl("http://localhost:8084/delivery/menu/pizza/" + pizza.getName());
 
         return pizzaResponse;
     }
-    public PastaResponse findPasta(String pastaName){
+    public PastaResponse findPasta(String pastaName,String restaurantName){
         Pasta pasta = pastaRepo.findByName(pastaName);
         PastaResponse pastaResponse = pastaMapper.responseFromModel(pasta);
-        pastaResponse.setAddToCart("http://localhost:8084/delivery/cart/pasta?pastaName=" + pasta.getName());
-        pastaResponse.setUrl("http://localhost:8084/delivery/menu/pasta/" + pasta.getName());
+        pastaResponse.setAddToCart("http://localhost:8084/delivery/cart/" + restaurantName +"/pasta?pastaName=" + pasta.getName());
+//        pastaResponse.setUrl("http://localhost:8084/delivery/menu/pasta/" + pasta.getName());
 
         return pastaResponse;
     }
-    public SaladResponse findSalad(String saladName){
+    public SaladResponse findSalad(String saladName,String restaurantName){
         Salad salad = saladRepo.findByName(saladName);
         SaladResponse saladResponse = saladMapper.responseFromModel(salad);
-        saladResponse.setAddToCart("http://localhost:8084/delivery/cart/salad?saladName=" + salad.getName());
-        saladResponse.setUrl("http://localhost:8084/delivery/menu/salad/" + salad.getName());
+        saladResponse.setAddToCart("http://localhost:8084/delivery/cart/"+restaurantName+"/salad?saladName=" + salad.getName());
+//        saladResponse.setUrl("http://localhost:8084/delivery/menu/salad/" + salad.getName());
 
         return saladResponse;
     }
-    public SteakResponse findSteak(String steakName){
+    public SteakResponse findSteak(String steakName,String restaurantName){
         Steak steak = steakRepo.findByName(steakName);
         SteakResponse steakResponse = steakMapper.responseFromModel(steak);
-        steakResponse.setUrl("http://localhost:8084/delivery/menu/steak/" + steak.getName());
-        steakResponse.setAddToCart("http://localhost:8084/delivery/cart/steak?steakName=" + steak.getName());
+//        steakResponse.setUrl("http://localhost:8084/delivery/menu/steak/" + steak.getName());
+        steakResponse.setAddToCart("http://localhost:8084/delivery/cart/" +restaurantName+"/steak?steakName=" + steak.getName());
 
         return steakResponse;
     }
@@ -243,7 +246,7 @@ public class MenuService {
     public Menu findByName(String name){
         return repo.findByName(name);
     }
-//    public Menu findByRestaurantName(String name){
+    //    public Menu findByRestaurantName(String name){
 //        return repo.findByRestaurantName(name);
 //    }
     public void deleteById(String menuId){

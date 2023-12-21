@@ -17,8 +17,10 @@ import com.example.fooddelivery.service.CartService;
 import com.example.fooddelivery.service.PizzaService;
 import com.example.fooddelivery.validation.ObjectValidator;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -73,21 +75,33 @@ public class CartController {
 
         return ResponseEntity.ok().body(cartResponse);
     }
-    @PostMapping (value = "/pasta")
-    public ResponseEntity<CartResponse>choosePasta(@RequestParam String pastaName, Authentication authentication ){
-        CartResponse cartResponse = cartService.choosePasta(authentication,pastaName);
+    @PostMapping(value = "/finish")
+    public ResponseEntity<String>finishPurchase(Authentication authentication, HttpServletRequest request){
+        String finish = cartService.finish(authentication,request);
+
+        return ResponseEntity.ok(finish);
+    }
+    @DeleteMapping(value = "")
+    public ResponseEntity<String>deleteCart(Authentication authentication){
+        String deletedCart = cartService.deleteCart(authentication);
+
+        return ResponseEntity.ok(deletedCart);
+    }
+    @PostMapping (value = "/{restaurantName}/pasta")
+    public ResponseEntity<CartResponse>choosePasta(@RequestParam String pastaName,@PathVariable String restaurantName, Authentication authentication ){
+        CartResponse cartResponse = cartService.choosePasta(authentication,pastaName,restaurantName);
 
         return ResponseEntity.ok().body(cartResponse);
     }
-    @PostMapping (value = "/steak")
-    public ResponseEntity<CartResponse>chooseSteak(@RequestParam String steakName, Authentication authentication ){
-        CartResponse cartResponse = cartService.chooseSteak(authentication,steakName);
+    @PostMapping (value = "/{restaurantName}/steak")
+    public ResponseEntity<CartResponse>chooseSteak(@RequestParam String steakName,@PathVariable String restaurantName, Authentication authentication ){
+        CartResponse cartResponse = cartService.chooseSteak(authentication,steakName,restaurantName);
 
         return ResponseEntity.ok().body(cartResponse);
     }
-    @PostMapping (value = "/salad")
-    public ResponseEntity<CartResponse>chooseSalad(@RequestParam String saladName, Authentication authentication ){
-        CartResponse cartResponse = cartService.chooseSalad(authentication,saladName);
+    @PostMapping (value = "/{restaurantName}/salad")
+    public ResponseEntity<CartResponse>chooseSalad(@RequestParam String saladName,@PathVariable String restaurantName, Authentication authentication ){
+        CartResponse cartResponse = cartService.chooseSalad(authentication,saladName,restaurantName);
 
         return ResponseEntity.ok().body(cartResponse);
     }

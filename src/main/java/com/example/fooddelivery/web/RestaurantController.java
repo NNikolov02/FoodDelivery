@@ -76,7 +76,7 @@ public class RestaurantController {
     public ResponseEntity<String>putMenu(@RequestParam String id,@PathVariable String restaurantName){
         Menu menu = menuService.findById(id);
         Restaurant restaurant =restaurantService.findRestaurantByName(restaurantName);
-       String response = restaurantService.putMenu(menu,restaurant);
+        String response = restaurantService.putMenu(menu,restaurant);
         return ResponseEntity.ok().body(response);
     }
     @PutMapping(value = "/{restaurantName}")

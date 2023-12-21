@@ -47,8 +47,32 @@ public class MenuController {
     public ResponseEntity<MenuResponse> seeMenu(@PathVariable String restaurantName) {
         Restaurant restaurant = restaurantService.findRestaurantByName(restaurantName);
         Menu menu = restaurant.getMenu();
+        List<Pizza>pizzas = menu.getPizzas();
+        List<Pasta>pastas = menu.getPastas();
+        List<Steak>steaks = menu.getSteaks();
+        List<Salad>salads = menu.getSalads();
+        for(Pizza pizza:pizzas){
+            pizza.setUrl("http://localhost:8084/delivery/menu/" +restaurantName + "/pizza/" + pizza.getName());
+        }
+        for(Pasta pasta:pastas){
+            pasta.setUrl("http://localhost:8084/delivery/menu/" +restaurantName + "/pasta/" + pasta.getName());
+        }
+        for(Steak steak:steaks){
+            steak.setUrl("http://localhost:8084/delivery/menu/" +restaurantName + "/steak/" + steak.getName());
+        }
+        for(Salad salad:salads){
+            salad.setUrl("http://localhost:8084/delivery/menu/" +restaurantName + "/salad/" + salad.getName());
+        }
+
 
         return ResponseEntity.ok(menuMapper.responseFromModelOne(menu));
+    }
+    @GetMapping(value = "/name/{menuName}")
+    public ResponseEntity<MenuResponse>findByName(@PathVariable String menuName){
+        Menu menu = menuService.findByName(menuName);
+        MenuResponse menuResponse = menuMapper.responseFromModelOne(menu);
+
+        return ResponseEntity.ok(menuResponse);
     }
     @GetMapping(value = "/pizza")
     public ResponseEntity<List<PizzaResponse>>seePizza(){
@@ -61,27 +85,27 @@ public class MenuController {
         }
         return ResponseEntity.ok().body(pizzaResponses);
     }
-    @GetMapping(value = "/pizza/{pizzaName}")
-    public ResponseEntity<PizzaResponse>findPizza(@PathVariable String pizzaName){
-        PizzaResponse pizzaResponse = menuService.findPizza(pizzaName);
+    @GetMapping(value = "/{restaurantName}/pizza/{pizzaName}")
+    public ResponseEntity<PizzaResponse>findPizza(@PathVariable String pizzaName,@PathVariable String restaurantName){
+        PizzaResponse pizzaResponse = menuService.findPizza(pizzaName,restaurantName);
 
         return ResponseEntity.ok(pizzaResponse);
     }
-    @GetMapping(value = "/pasta/{pastaName}")
-    public ResponseEntity<PastaResponse>findPasta(@PathVariable String pastaName){
-        PastaResponse pastaResponse = menuService.findPasta(pastaName);
+    @GetMapping(value = "/{restaurantName}/pasta/{pastaName}")
+    public ResponseEntity<PastaResponse>findPasta(@PathVariable String pastaName,@PathVariable String restaurantName){
+        PastaResponse pastaResponse = menuService.findPasta(pastaName,restaurantName);
 
         return ResponseEntity.ok(pastaResponse);
     }
-    @GetMapping(value = "/salad/{saladName}")
-    public ResponseEntity<SaladResponse>findSalad(@PathVariable String saladName){
-        SaladResponse saladResponse = menuService.findSalad(saladName);
+    @GetMapping(value = "/{restaurantName}/salad/{saladName}")
+    public ResponseEntity<SaladResponse>findSalad(@PathVariable String saladName,@PathVariable String restaurantName){
+        SaladResponse saladResponse = menuService.findSalad(saladName,restaurantName);
 
         return ResponseEntity.ok(saladResponse);
     }
-    @GetMapping(value = "/steak/{steakName}")
-    public ResponseEntity<SteakResponse>findSteak(@PathVariable String steakName){
-        SteakResponse steakResponse = menuService.findSteak(steakName);
+    @GetMapping(value = "/{restaurantName}/steak/{steakName}")
+    public ResponseEntity<SteakResponse>findSteak(@PathVariable String steakName,@PathVariable String restaurantName){
+        SteakResponse steakResponse = menuService.findSteak(steakName,restaurantName);
 
         return ResponseEntity.ok(steakResponse);
     }
@@ -158,7 +182,7 @@ public class MenuController {
 
     @PostMapping(value = "")
     public ResponseEntity<String>createMenu(@RequestBody MenuCreateRequest menuDto){
-       String menuCreate = menuService.create(menuDto);
+        String menuCreate = menuService.create(menuDto);
 
         return ResponseEntity.ok().body(menuCreate);
 

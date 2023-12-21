@@ -1,7 +1,9 @@
 package com.example.fooddelivery.dto.restaurant;
 
 import com.example.fooddelivery.dto.RestaurantRatingDto;
+import com.example.fooddelivery.dto.customer.CustomerDto;
 import com.example.fooddelivery.dto.menu.MenuDto;
+import com.example.fooddelivery.model.Customer;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,4 +20,5 @@ public class RestaurantResponse {
     private Integer rating;
     private String menuUrl;
     private List<RestaurantRatingDto>ratings;
+//    private List<CustomerDto>customers;
 }

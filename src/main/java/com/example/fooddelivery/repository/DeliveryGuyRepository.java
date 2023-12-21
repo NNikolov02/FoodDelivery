@@ -23,8 +23,8 @@ public interface DeliveryGuyRepository extends CrudRepository<DeliveryGuy, UUID>
     List<DeliveryGuy>findByRestaurantName(@Param("restaurantName") String restaurantName);
     @Query("SELECT d FROM DeliveryGuy d JOIN d.restaurant c WHERE c.name = :restaurantName")
     DeliveryGuy findByRestaurantNameOne(@Param("restaurantName") String restaurantName);
-    @Query("SELECT d FROM DeliveryGuy d JOIN d.cart c WHERE c.id = :cartId")
-    DeliveryGuy findByCartId(@Param("cartId") UUID cartId);
+//    @Query("SELECT d FROM DeliveryGuy d JOIN d.cart c WHERE c.id = :cartId")
+//    DeliveryGuy findByCartId(@Param("cartId") UUID cartId);
 
 
 }

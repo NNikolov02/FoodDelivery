@@ -62,18 +62,26 @@ public class CustomerController {
 
         return ResponseEntity.ok().body(customerResponse);
     }
+//    @GetMapping(value ="")
+//    public ResponseEntity<CustomerResponse> findByAuthentication(@PathVariable String customerId){
+//
+//        Customer customer = customerService.findById(customerId);
+//        CustomerResponse customerResponse = customerMapper.responseFromModelOne(customer);
+//
+//        return ResponseEntity.ok().body(customerResponse);
+//    }
     @GetMapping(value = "/cart")
     public ResponseEntity<CartResponse>seeCart(Authentication authentication){
         CartResponse cartResponse = customerService.seeCart(authentication);
 
         return ResponseEntity.ok().body(cartResponse);
     }
-    @DeleteMapping(value = "/cart/purchase")
-    public ResponseEntity<String>purchase(Authentication authentication){
-        customerService.purchaseCart(authentication);
-
-        return ResponseEntity.ok("It is purchased");
-    }
+//    @DeleteMapping(value = "/cart/purchase")
+//    public ResponseEntity<String>purchase(Authentication authentication){
+//        customerService.purchaseCart(authentication);
+//
+//        return ResponseEntity.ok("It is purchased");
+//    }
 
     @GetMapping(value ="/name/{customerName}")
     public ResponseEntity<CustomerResponse>findByUserName(@PathVariable String customerName){

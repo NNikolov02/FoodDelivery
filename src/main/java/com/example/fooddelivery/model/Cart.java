@@ -27,6 +27,8 @@ public class Cart {
     private LocalTime createTime;
     private LocalTime timeOfDelivery;
     private Integer fullPrice;
+    private String isDelivered;
+    private String finish;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     @JsonIgnoreProperties("cart")
@@ -43,8 +45,8 @@ public class Cart {
     @ManyToMany(mappedBy = "carts", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("carts")
     private List<Steak> steaks;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "deliveryGuy_id", referencedColumnName = "id")
-    @JsonIgnoreProperties("cart")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deliveryGuy_id")
+    @JsonManagedReference
     private DeliveryGuy deliveryGuy;
 }

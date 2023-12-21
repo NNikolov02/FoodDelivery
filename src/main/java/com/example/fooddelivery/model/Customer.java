@@ -38,5 +38,8 @@ public class Customer {
     @OneToOne(mappedBy = "customer")
     @JsonIgnoreProperties("customer")
     private Cart cart;
+    @ManyToMany(mappedBy = "customers", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("customers")
+    private List<Restaurant> restaurants;
 
 }

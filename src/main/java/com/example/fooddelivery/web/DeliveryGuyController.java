@@ -1,5 +1,8 @@
 package com.example.fooddelivery.web;
 
+import com.example.fooddelivery.dto.cart.CartDeliveryGuy;
+import com.example.fooddelivery.dto.cart.CartDto;
+import com.example.fooddelivery.dto.cart.CartResponse;
 import com.example.fooddelivery.dto.deliveryguy.DeliverGuyResponsePrivate;
 import com.example.fooddelivery.dto.deliveryguy.DeliveryGuyApiPage;
 import com.example.fooddelivery.dto.deliveryguy.DeliveryGuyCreateRequest;
@@ -14,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/delivery/deliveryGuy")
@@ -32,17 +37,23 @@ public class DeliveryGuyController {
 
         return new DeliveryGuyApiPage<>(deliveryGuyPage);
     }
-    @GetMapping("")
+    @GetMapping("/seeProfile")
     public ResponseEntity<DeliverGuyResponsePrivate>seeCredentials(Authentication authentication){
         DeliverGuyResponsePrivate deliverGuyResponsePrivate = deliveryGuyService.seeCredentials(authentication);
 
         return ResponseEntity.ok().body(deliverGuyResponsePrivate);
     }
-    @PostMapping("/create")
-    public ResponseEntity<DeliveryGuyResponse>create(@RequestBody DeliveryGuyCreateRequest deliveryGuyDto){
-        DeliveryGuyResponse deliveryGuyResponse = deliveryGuyService.create(deliveryGuyDto);
+    @PostMapping("/{restaurantName}/create")
+    public ResponseEntity<DeliveryGuyResponse>create(@RequestBody DeliveryGuyCreateRequest deliveryGuyDto,@PathVariable String restaurantName){
+        DeliveryGuyResponse deliveryGuyResponse = deliveryGuyService.create(deliveryGuyDto,restaurantName);
 
         return ResponseEntity.ok().body(deliveryGuyResponse);
+    }
+    @GetMapping("/seeCarts")
+    public ResponseEntity<List<CartDeliveryGuy>>viewCarts(Authentication authentication){
+        List<CartDeliveryGuy>cartsResponses = deliveryGuyService.viewCarts(authentication);
+
+        return ResponseEntity.ok().body(cartsResponses);
     }
 
     @PatchMapping(value = "/update")
@@ -51,6 +62,12 @@ public class DeliveryGuyController {
         DeliveryGuyResponse deliveryGuyResponse =deliveryGuyService.update(available,authentication);
 
         return ResponseEntity.ok().body(deliveryGuyResponse);
+    }
+    @PostMapping("/{cartId}/delivered")
+    public ResponseEntity<String>deliveredCart(Authentication authentication,@RequestParam boolean delivered,@PathVariable String cartId){
+        String deliveredCart = deliveryGuyService.deliveredCart(authentication,delivered,cartId);
+
+        return ResponseEntity.ok(deliveredCart);
     }
 
 }

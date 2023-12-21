@@ -1,11 +1,13 @@
 package com.example.fooddelivery.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -31,7 +33,7 @@ public class DeliveryGuy {
     @JoinColumn(name = "restaurant_id")
     @JsonManagedReference
     private Restaurant restaurant;
-    @OneToOne(mappedBy = "deliveryGuy")
-    @JsonIgnoreProperties("deliveryGuy")
-    private Cart cart;
+    @OneToMany(mappedBy = "deliveryGuy", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private List<Cart> carts;
 }

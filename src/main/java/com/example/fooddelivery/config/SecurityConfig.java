@@ -41,7 +41,7 @@ public class SecurityConfig {
                                 .requestMatchers("/delivery/restaurants/**").permitAll()
 //                                .requestMatchers("/delivery/deliveryGuy").permitAll()
                                 .requestMatchers("/delivery/deliveryGuy/all").permitAll()
-                                .requestMatchers("/delivery/deliveryGuy/create").permitAll()
+                                .requestMatchers("/delivery/deliveryGuy/{restaurantName}/create").permitAll()
                                 .requestMatchers("/delivery/customer/**").permitAll()
                                 .requestMatchers("/delivery/pizza/create").permitAll()
                                 .requestMatchers("/delivery/pasta/create").permitAll()

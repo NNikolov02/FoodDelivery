@@ -43,6 +43,12 @@ public class Restaurant {
     private List<DeliveryGuy> deliveryGuys;
 
     private Integer rating;
-
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("restaurant")
+    @JoinTable(
+            name = "restaurant_customer",
+            joinColumns = @JoinColumn(name = "restaurant_id"),
+            inverseJoinColumns = @JoinColumn(name = "customer_id"))
+    private List<Customer> customers;
 
 }
