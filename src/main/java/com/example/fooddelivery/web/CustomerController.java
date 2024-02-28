@@ -1,10 +1,7 @@
 package com.example.fooddelivery.web;
 
 import com.example.fooddelivery.dto.cart.CartResponse;
-import com.example.fooddelivery.dto.customer.CustomerApiPage;
-import com.example.fooddelivery.dto.customer.CustomerCreateRequest;
-import com.example.fooddelivery.dto.customer.CustomerResponse;
-import com.example.fooddelivery.dto.customer.CustomerUpdateRequest;
+import com.example.fooddelivery.dto.customer.*;
 import com.example.fooddelivery.error.InvalidObjectException;
 import com.example.fooddelivery.mapping.CustomerMapper;
 import com.example.fooddelivery.model.Customer;
@@ -92,6 +89,19 @@ public class CustomerController {
 
         return ResponseEntity.ok().body(customerResponse);
     }
+    @GetMapping(value = "/seeProfile")
+    public ResponseEntity<CustomerResponsePrivate>seeProfile(Authentication authentication){
+        CustomerResponsePrivate customerResponsePrivate = customerService.seeProfile(authentication);
+
+        return ResponseEntity.ok().body(customerResponsePrivate);
+
+    }
+    @DeleteMapping(value = "/deleteAccount")
+    public ResponseEntity<String>deleteProfile(Authentication authentication){
+        String delete = customerService.deleteProfile(authentication);
+
+        return ResponseEntity.ok(delete);
+    }
 
     @DeleteMapping(value ="/{customerId}")
     public ResponseEntity<String> deleteById(@PathVariable String customerId){
@@ -118,12 +128,25 @@ public class CustomerController {
         return  ResponseEntity.status(HttpStatus.CREATED).body(connect);
 
     }
-    @PatchMapping(value ="/{customerName}")
-    public ResponseEntity<String>updateCustomer(@PathVariable String customerName, @RequestBody CustomerUpdateRequest customerDto){
-        Customer customer = customerService.findByUserName(customerName);
-        String customerUpdate  = customerService.updateCustomer(customer,customerDto);
+    @PatchMapping(value ="/update")
+    public ResponseEntity<String>updateCustomer( @RequestBody CustomerUpdateRequest customerDto,Authentication authentication){
+        String customerUpdate  = customerService.updateCustomer(authentication,customerDto);
 
 
         return ResponseEntity.ok().body(customerUpdate);
+    }
+    @PostMapping(value = "/forgotPassword")
+    public ResponseEntity<String>forgetPassword(@RequestParam String email, HttpServletRequest request){
+        String forgot = customerService.forgotPassword(email,request);
+
+        return ResponseEntity.ok(forgot);
+
+    }
+    @PatchMapping(value = "/confirm")
+    public ResponseEntity<String>verifyToken(@RequestParam String token,@RequestParam String newPassword){
+        String confirm = customerService.confirmAndChange(token,newPassword);
+
+        return ResponseEntity.ok(confirm);
+
     }
 }

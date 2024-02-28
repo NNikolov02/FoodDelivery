@@ -2,13 +2,18 @@ package com.example.fooddelivery.service;
 
 import com.example.fooddelivery.dto.cart.CartResponse;
 import com.example.fooddelivery.dto.customer.CustomerCreateRequest;
+import com.example.fooddelivery.dto.customer.CustomerResponse;
+import com.example.fooddelivery.dto.customer.CustomerResponsePrivate;
 import com.example.fooddelivery.dto.customer.CustomerUpdateRequest;
+import com.example.fooddelivery.email.OnForgotCustomer;
+import com.example.fooddelivery.email.OnForgotDeliveryGuy;
 import com.example.fooddelivery.email.OnRegistrationCompleteEventCustomer;
-import com.example.fooddelivery.error.InvalidObjectException;
+import com.example.fooddelivery.error.*;
 import com.example.fooddelivery.mapping.CartMapper;
 import com.example.fooddelivery.mapping.CustomerMapper;
 import com.example.fooddelivery.model.Cart;
 import com.example.fooddelivery.model.Customer;
+import com.example.fooddelivery.model.DeliveryGuy;
 import com.example.fooddelivery.repository.CartRepository;
 import com.example.fooddelivery.repository.CustomerPagingRepository;
 import com.example.fooddelivery.repository.CustomerRepository;
@@ -25,10 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 @Service
@@ -99,14 +101,16 @@ public class CustomerService {
         System.out.println("Token: " + token);
     }
 
-    public String updateCustomer(Customer customer, CustomerUpdateRequest customerDto){
+    public String updateCustomer(Authentication authentication, CustomerUpdateRequest customerDto){
         Map<String, String> validationErrors = validator.validate(customerDto);
         if (validationErrors.size() != 0) {
             throw new InvalidObjectException("Invalid Customer Update", validationErrors);
         }
-        customerMapper.updateModelFromDto(customerDto,customer);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Customer authenticatedCustomer = repo.findCustomerByUsername(userDetails.getUsername());
+        customerMapper.updateModelFromDto(customerDto,authenticatedCustomer);
 
-        Customer saved = repo.save(customer);
+        Customer saved = repo.save(authenticatedCustomer);
 
         return "It is updated successfully!";
 
@@ -120,6 +124,50 @@ public class CustomerService {
         CartResponse cartResponse = cartMapper.responseFromModelOne(cart);
 
         return cartResponse;
+    }
+    public CustomerResponsePrivate seeProfile(Authentication authentication){
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Customer authenticatedCustomer = repo.findCustomerByUsername(userDetails.getUsername());
+        CustomerResponsePrivate customerResponsePrivate = customerMapper.responseFromModelPrivate(authenticatedCustomer);
+        customerResponsePrivate.setDeleteAccount("http://localhost:8084/delivery/customer/deleteAccount");
+
+        return customerResponsePrivate;
+
+    }
+    @Transactional
+    public String deleteProfile(Authentication authentication){
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Customer authenticatedCustomer = repo.findCustomerByUsername(userDetails.getUsername());
+        repo.delete(authenticatedCustomer);
+
+        return "It is deleted successfully!";
+    }
+    public String forgotPassword(String email, HttpServletRequest request){
+        Customer customer = repo.findByEmail(email);
+
+        if(customer != null){
+            String appUrl = request.getContextPath();
+            eventPublisher.publishEvent(new OnForgotCustomer(customer, request.getLocale(), appUrl));
+        }else {
+            throw new NotFoundCustomerException("There is not such a account!");
+        }
+
+        return "Email has been sent!";
+    }
+    @Transactional
+    public String confirmAndChange(String token,String password){
+        List<String> tokens = new ArrayList<>();
+        tokens.add(token);
+        Customer customer = repo.findByTokensIn(tokens);
+        if(customer != null){
+            customerMapper.updateModelFromDtoPassword(password,customer);
+            customer.setTokens(null);
+            repo.save(customer);
+        }else {
+            throw new InvalidToken("The token is invalid!");
+        }
+
+        return "The password is changed successfully!";
     }
 //    @Transactional
 //    public void purchaseCart(Authentication authentication){

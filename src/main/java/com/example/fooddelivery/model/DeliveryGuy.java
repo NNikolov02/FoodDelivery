@@ -28,6 +28,8 @@ public class DeliveryGuy {
     private String password;
     private boolean available;
     private String restaurantUrl;
+    @ElementCollection
+    private List<String>tokens;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")

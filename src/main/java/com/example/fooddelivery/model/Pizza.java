@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -28,6 +30,11 @@ public class Pizza {
     @ElementCollection
     private List<String> toppings;
     private Integer price;
+//    @ElementCollection
+//    @CollectionTable(name = "customer_pizza_customerAmountMap", joinColumns = @JoinColumn(name = "pizza_id"))
+//    @MapKeyJoinColumn(name = "customer_id")
+//    private Map<Customer, Integer> customerAmountMap =new HashMap<>();
+    private Integer amount;
     private String url;
     private String addToCart;
 

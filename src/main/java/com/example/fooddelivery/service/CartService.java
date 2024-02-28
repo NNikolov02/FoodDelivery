@@ -1,6 +1,7 @@
 package com.example.fooddelivery.service;
 
 import com.example.fooddelivery.dto.cart.CartResponse;
+import com.example.fooddelivery.dto.pizza.PizzaDto;
 import com.example.fooddelivery.email.DeliveryGuyCartListener;
 import com.example.fooddelivery.email.OnCartDeliveryGuy;
 import com.example.fooddelivery.email.OnRegistrationCompleteEventCustomer;
@@ -18,11 +19,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @Service
@@ -110,12 +114,16 @@ public class CartService {
         DeliveryGuy deliveryGuy = cart.getDeliveryGuy();
 
         if(authenticatedCustomer.getCart() != null){
-            LocalTime time = LocalTime.now().plusMinutes(45);
+            LocalDateTime time = LocalDateTime .now().plusMinutes(45);
             cart.setTimeOfDelivery(time);
             repo.save(cart);
             String appUrl = request.getContextPath();
             eventPublisher.publishEvent(new OnCartDeliveryGuy(deliveryGuy, request.getLocale(), appUrl));
+            String fullName = Stream.of(authenticatedCustomer.getFirstName(),authenticatedCustomer.getLastName())
+                            .collect(Collectors.joining(" "));
 
+            cart.setCustomerName(fullName);
+            cart.setCustomerNumber(authenticatedCustomer.getPhoneNumber());
             authenticatedCustomer.setCart(null);
             cart.setCustomer(null);
             customerRepo.save(authenticatedCustomer);
@@ -128,10 +136,13 @@ public class CartService {
     }
     @Transactional
     public CartResponse choosePizza(Authentication authentication, String pizzaName,String restaurantName){
+        Integer amount = 1;
         Pizza pizza = pizzaRepo.findByName(pizzaName);
         List<DeliveryGuy> deliveryGuys = deliveryGuyRepo.findByRestaurantName(restaurantName);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Customer authenticatedCustomer = customerRepo.findCustomerByUsername(userDetails.getUsername());
+
+//        pizza.getCustomerAmountMap().put(authenticatedCustomer, amount);
         List<Pizza> pizzas = new ArrayList<>();
         pizzas.add(pizza);
         if(authenticatedCustomer.getCart() == null ){
@@ -139,13 +150,13 @@ public class CartService {
             List<Cart>carts = new ArrayList<>();
             Cart cart =Cart.builder()
                     .id(UUID.randomUUID())
-                    .createTime(LocalTime.now())
+                    .createTime(LocalDateTime .now())
                     .customer(authenticatedCustomer)
                     .pizzas(pizzas)
                     .location(authenticatedCustomer.getAddress())
                     .fullPrice(pizza.getPrice())
                     .build();
-
+           // carts.add(cart);
             DeliveryGuy deliveryGuy = findAvailableDeliveryGuy(deliveryGuys);
 
 
@@ -156,8 +167,8 @@ public class CartService {
                 }
 
             }
-
-            repo.save(cart);
+            carts.add(cart);
+            //repo.save(cart);
 
             if (cart.getDeliveryGuy() != null) {
                 deliveryGuyRepo.save(cart.getDeliveryGuy());
@@ -169,10 +180,14 @@ public class CartService {
             customerRepo.save(authenticatedCustomer);
 
 
+            repo.save(cart);
+//            pizza.getCustomerAmountMap().put(authenticatedCustomer, 1);
+            pizza.setAmount(1);
             pizzaRepo.save(pizza);
 
             CartResponse cartResponse = cartMapper.responseFromModelOne(cart);
             cartResponse.setFinish("http://localhost:8084/delivery/cart/finish");
+
 
             return cartResponse;
 
@@ -180,9 +195,23 @@ public class CartService {
             List<Cart>carts = new ArrayList<>();
             Cart cart =authenticatedCustomer.getCart();
             carts.add(cart);
+
+//                int currentAmount = pizza.getCustomerAmountMap().get(authenticatedCustomer);
+//                pizza.getCustomerAmountMap().put(authenticatedCustomer, currentAmount + amount);
+                for(Pizza pizza1:pizzas){
+                    for(Pizza pizza2:cart.getPizzas()){
+                        if(pizza1.equals(pizza2)){
+                            pizza2.setAmount(pizza2.getAmount()+ 1);
+                        }
+                    }
+                }
+
             cart.setPizzas(pizzas);
             cart.setFullPrice(cart.getFullPrice() + pizza.getPrice());
+
             pizza.setCarts(carts);
+
+
             repo.save(cart);
             pizzaRepo.save(pizza);
 
@@ -208,7 +237,7 @@ public class CartService {
             List<Cart>carts = new ArrayList<>();
             Cart cart =Cart.builder()
                     .id(UUID.randomUUID())
-                    .createTime(LocalTime.now())
+                    .createTime(LocalDateTime .now())
                     .customer(authenticatedCustomer)
                     .pastas(pastas)
                     .location(authenticatedCustomer.getAddress())
@@ -220,10 +249,13 @@ public class CartService {
 
             if (deliveryGuy != null) {
                 cart.setDeliveryGuy(deliveryGuy);
-                deliveryGuy.setAvailable(false);
-            }
+                if(deliveryGuy.getCarts().size() == 5) {
+                    deliveryGuy.setAvailable(false);
+                }
 
-            repo.save(cart);
+            }
+            carts.add(cart);
+            //repo.save(cart);
 
             if (cart.getDeliveryGuy() != null) {
                 deliveryGuyRepo.save(cart.getDeliveryGuy());
@@ -232,7 +264,7 @@ public class CartService {
             pasta.setCarts(carts);
             authenticatedCustomer.setCart(cart);
             customerRepo.save(authenticatedCustomer);
-
+            repo.save(cart);
             pastaRepo.save(pasta);
 
 
@@ -271,28 +303,26 @@ public class CartService {
             List<Cart>carts = new ArrayList<>();
             Cart cart =Cart.builder()
                     .id(UUID.randomUUID())
-                    .createTime(LocalTime.now())
+                    .createTime(LocalDateTime .now())
                     .customer(authenticatedCustomer)
                     .steaks(steaks)
                     .location(authenticatedCustomer.getAddress())
                     .fullPrice(steak.getPrice())
                     .build();
-            carts.add(cart);
-            for(DeliveryGuy deliveryGuy:deliveryGuys){
-                if(deliveryGuy.isAvailable()){
-                    cart.setDeliveryGuy(deliveryGuy);
+
+            DeliveryGuy deliveryGuy = findAvailableDeliveryGuy(deliveryGuys);
+            if (deliveryGuy != null) {
+                cart.setDeliveryGuy(deliveryGuy);
+                if(deliveryGuy.getCarts().size() == 5) {
                     deliveryGuy.setAvailable(false);
-
-                    deliveryGuy.setCarts(carts);
-                    deliveryGuyRepo.save(deliveryGuy);
-
-                    repo.save(cart);
-
-                }
-                if(cart.getDeliveryGuy() != null){
-                    break;
                 }
 
+            }
+            carts.add(cart);
+           //repo.save(cart);
+
+            if (cart.getDeliveryGuy() != null) {
+                deliveryGuyRepo.save(cart.getDeliveryGuy());
             }
 
             steak.setCarts(carts);
@@ -338,28 +368,28 @@ public class CartService {
             List<Cart>carts = new ArrayList<>();
             Cart cart =Cart.builder()
                     .id(UUID.randomUUID())
-                    .createTime(LocalTime.now())
+                    .createTime(LocalDateTime .now())
                     .customer(authenticatedCustomer)
                     .salads(salads)
                     .location(authenticatedCustomer.getAddress())
                     .fullPrice(salad.getPrice())
                     .build();
             carts.add(cart);
-            for(DeliveryGuy deliveryGuy:deliveryGuys){
-                if(deliveryGuy.isAvailable()){
-                    cart.setDeliveryGuy(deliveryGuy);
+            DeliveryGuy deliveryGuy = findAvailableDeliveryGuy(deliveryGuys);
+
+
+            if (deliveryGuy != null) {
+                cart.setDeliveryGuy(deliveryGuy);
+                if(deliveryGuy.getCarts().size() == 5) {
                     deliveryGuy.setAvailable(false);
-
-                    deliveryGuy.setCarts(carts);
-                    deliveryGuyRepo.save(deliveryGuy);
-
-                    repo.save(cart);
-
-                }
-                if(cart.getDeliveryGuy() != null){
-                    break;
                 }
 
+            }
+            carts.add(cart);
+            //repo.save(cart);
+
+            if (cart.getDeliveryGuy() != null) {
+                deliveryGuyRepo.save(cart.getDeliveryGuy());
             }
 
             carts.add(cart);
@@ -387,7 +417,6 @@ public class CartService {
 
 
             CartResponse cartResponse = cartMapper.responseFromModelOne(cart);
-            cartResponse.setFinish("http://localhost:8084/delivery/cart/finish");
 
             return cartResponse;
         }

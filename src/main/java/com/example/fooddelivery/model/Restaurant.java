@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -51,4 +52,11 @@ public class Restaurant {
             inverseJoinColumns = @JoinColumn(name = "customer_id"))
     private List<Customer> customers;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Restaurant restaurant = (Restaurant) o;
+        return Objects.equals(name, restaurant.name);
+    }
 }

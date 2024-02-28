@@ -24,11 +24,14 @@ public class Cart {
     @JsonProperty("id")
     private UUID id;
     private String location;
-    private LocalTime createTime;
-    private LocalTime timeOfDelivery;
+    private LocalDateTime createTime;
+    private LocalDateTime timeOfDelivery;
     private Integer fullPrice;
     private String isDelivered;
     private String finish;
+
+    private String customerName;
+    private String customerNumber;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     @JsonIgnoreProperties("cart")

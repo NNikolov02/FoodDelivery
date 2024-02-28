@@ -8,6 +8,7 @@ import lombok.*;
 import org.hibernate.validator.constraints.Range;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -29,4 +30,12 @@ public class RestaurantRating {
     @JoinColumn(name = "restaurant_id")
     @JsonManagedReference
     private Restaurant restaurant;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RestaurantRating that = (RestaurantRating) o;
+        return Objects.equals(rating, that.rating);
+    }
 }

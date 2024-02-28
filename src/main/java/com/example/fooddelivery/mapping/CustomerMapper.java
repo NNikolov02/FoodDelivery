@@ -1,10 +1,8 @@
 package com.example.fooddelivery.mapping;
 
-import com.example.fooddelivery.dto.customer.CustomerCreateRequest;
-import com.example.fooddelivery.dto.customer.CustomerDto;
-import com.example.fooddelivery.dto.customer.CustomerResponse;
-import com.example.fooddelivery.dto.customer.CustomerUpdateRequest;
+import com.example.fooddelivery.dto.customer.*;
 import com.example.fooddelivery.model.Customer;
+import com.example.fooddelivery.model.DeliveryGuy;
 import org.mapstruct.*;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +15,7 @@ public interface CustomerMapper {
 
     CustomerResponse responseFromModelOne(Customer customer);
     List<CustomerResponse> responseFromModelList(List<Customer> customers);
+    CustomerResponsePrivate responseFromModelPrivate(Customer customer);
 
 
     @Mapping(target = "email",nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -29,5 +28,7 @@ public interface CustomerMapper {
     CustomerDto modelRoDto(Customer customer);
 
     Customer dtoModel(Customer customerDto);
+    @Mapping(target = "password", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateModelFromDtoPassword(String password, @MappingTarget Customer customer);
 
 }

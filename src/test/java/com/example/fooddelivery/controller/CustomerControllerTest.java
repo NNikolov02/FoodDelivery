@@ -23,7 +23,7 @@ public class CustomerControllerTest {
 
         // Create a sample Customer
         mockMvc.perform(
-                        get("http://localhost:8084//delivery/customer/cart" )
+                        get("http://localhost:8084/delivery/customer/cart" )
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(httpBasic("Ivan55", "nikola02"))
 

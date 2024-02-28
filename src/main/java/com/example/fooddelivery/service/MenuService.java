@@ -3,10 +3,13 @@ package com.example.fooddelivery.service;
 import com.example.fooddelivery.dto.menu.MenuCreateRequest;
 import com.example.fooddelivery.dto.menu.MenuResponse;
 import com.example.fooddelivery.dto.menu.MenuUpdateRequest;
+import com.example.fooddelivery.dto.pasta.PastaCreateRequest;
 import com.example.fooddelivery.dto.pasta.PastaResponse;
 import com.example.fooddelivery.dto.pasta.SetPastaRequest;
+import com.example.fooddelivery.dto.pizza.PizzaCreateRequest;
 import com.example.fooddelivery.dto.pizza.PizzaResponse;
 import com.example.fooddelivery.dto.pizza.SetPizzaRequest;
+import com.example.fooddelivery.dto.salad.SaladCreateRequest;
 import com.example.fooddelivery.dto.salad.SaladResponse;
 import com.example.fooddelivery.dto.salad.SetSaladRequest;
 import com.example.fooddelivery.dto.steak.SetSteakRequest;
@@ -17,6 +20,7 @@ import com.example.fooddelivery.mapping.*;
 import com.example.fooddelivery.model.*;
 import com.example.fooddelivery.repository.*;
 import com.example.fooddelivery.validation.ObjectValidator;
+import jakarta.validation.constraints.Past;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -63,7 +67,7 @@ public class MenuService {
     }
 
     public Menu getMenu(){
-        String id = "c973ad83-9288-430e-90b3-0cc7980f01a7";
+        String id = "d3f410e5-37bc-4f54-a56e-47077ee1fa44";
         return repo.findById(UUID.fromString(id)).orElse(null);
     }
     public Menu getMenuByName(String name){
@@ -133,90 +137,82 @@ public class MenuService {
         String id = "e4ba926d-651d-4f37-8a95-4ebf111d70d2";
         return steakRepo.findByMenuId(UUID.fromString(id));
     }
-    public MenuResponse putSteak(Menu findMenu, SetSteakRequest steakDto){
+    public MenuResponse createSteak(SteakCreateRequest steakDto,String restaurantName){
 
-
-        if(findMenu != null){
-
-            Steak steak = steakRepo.findByName(steakDto.getName());
-            List<Steak>steaks = new ArrayList<>();
-            steaks.add(steak);
-            findMenu.setSteaks(steaks);
-            steak.setUrl("http://localhost:8084/delivery/menu/steak/" + steak.getName());
-            steak.setMenu(findMenu);
-            steakRepo.save(steak);
-            repo.save(findMenu);
-
-
+        Map<String, String> validationErrors = validator.validate(steakDto);
+        if (validationErrors.size() != 0) {
+            throw new InvalidObjectException("Invalid Steak Create", validationErrors);
         }
-        MenuResponse menuResponse = menuMapper.responseFromModelOne(findMenu);
-
+        List<Steak> steaks = new ArrayList<>();
+        Menu menu = repo.findByRestaurantName(restaurantName);
+        Steak steak = steakMapper.modelFromCreateRequest(steakDto);
+        steak.setUrl("http://localhost:8084/delivery/menu/steak/" + steak.getName());
+        steak.setAddToCart("http://localhost:8084/delivery/cart/steak?steakName=" + steak.getName());
+        steak.setMenu(menu);
+        steaks.add(steak);
+        menu.setSteaks(steaks);
+        steakRepo.save(steak);
+        repo.save(menu);
+        MenuResponse menuResponse = menuMapper.responseFromModelOne(menu);
         return menuResponse;
     }
-    public MenuResponse putPasta(Menu findMenu, SetPastaRequest pastaDto){
+    public MenuResponse createPasta( PastaCreateRequest pastaDto,String restaurantName){
 
 
-        if(findMenu != null){
-
-            Pasta pasta = pastaRepo.findByName(pastaDto.getName());
-            List<Pasta>pastas = new ArrayList<>();
-            pastas.add(pasta);
-            findMenu.setPastas(pastas);
-            pasta.setUrl("http://localhost:8084/delivery/menu/pasta/" + pasta.getName());
-            pasta.setMenu(findMenu);
-
-            pastaRepo.save(pasta);
-            repo.save(findMenu);
-
-
+        Map<String, String> validationErrors = validator.validate(pastaDto);
+        if (validationErrors.size() != 0) {
+            throw new InvalidObjectException("Invalid Pasta Create", validationErrors);
         }
-        MenuResponse menuResponse = menuMapper.responseFromModelOne(findMenu);
-
+        List<Pasta> pastas = new ArrayList<>();
+        Menu menu = repo.findByRestaurantName(restaurantName);
+        Pasta pasta = pastaMapper.modelFromCreateRequest(pastaDto);
+        pasta.setUrl("http://localhost:8084/delivery/menu/pasta/" + pasta.getName());
+        pasta.setAddToCart("http://localhost:8084/delivery/cart/pasta?pastaName=" + pasta.getName());
+        pasta.setMenu(menu);
+        pastas.add(pasta);
+        menu.setPastas(pastas);
+        pastaRepo.save(pasta);
+        repo.save(menu);
+        MenuResponse menuResponse = menuMapper.responseFromModelOne(menu);
         return menuResponse;
     }
-    public MenuResponse putSalad(Menu findMenu, SetSaladRequest saladDto){
-
-
-        if(findMenu != null){
-
-            Salad salad = saladRepo.findByName(saladDto.getName());
-            List<Salad>salads = new ArrayList<>();
-            salads.add(salad);
-            findMenu.setSalads(salads);
-            salad.setUrl("http://localhost:8084/delivery/menu/salad/" + salad.getName());
-            salad.setMenu(findMenu);
-            saladRepo.save(salad);
-            repo.save(findMenu);
-
-
+    public MenuResponse createSalad(SaladCreateRequest saladDto, String restaurantName){
+        Map<String, String> validationErrors = validator.validate(saladDto);
+        if (validationErrors.size() != 0) {
+            throw new InvalidObjectException("Invalid Salad Create", validationErrors);
         }
-        MenuResponse menuResponse = menuMapper.responseFromModelOne(findMenu);
-
+        List<Salad> salads = new ArrayList<>();
+        Menu menu = repo.findByRestaurantName(restaurantName);
+        Salad salad = saladMapper.modelFromCreateRequest(saladDto);
+        salad.setUrl("http://localhost:8084/delivery/menu/salad/" + salad.getName());
+        salad.setAddToCart("http://localhost:8084/delivery/cart/salad?saladName=" + salad.getName());
+        salad.setMenu(menu);
+        salads.add(salad);
+        menu.setSalads(salads);
+        saladRepo.save(salad);
+        repo.save(menu);
+        MenuResponse menuResponse = menuMapper.responseFromModelOne(menu);
         return menuResponse;
     }
-    public MenuResponse putPizza(Menu findMenu, SetPizzaRequest pizzaDto){
-
-
-        if(findMenu != null){
-
-            Pizza pizza = pizzaRepo.findByName(pizzaDto.getName());
-            List<Pizza>pizzas = new ArrayList<>();
-            pizzas.add(pizza);
-            findMenu.setPizzas(pizzas);
-            pizza.setUrl("http://localhost:8084/delivery/menu/pizza/" + pizza.getName());
-            pizza.setMenu(findMenu);
-            pizzaRepo.save(pizza);
-            repo.save(findMenu);
-
-
+    public MenuResponse createPizza(PizzaCreateRequest pizzaDto, String restaurantName) {
+        Map<String, String> validationErrors = validator.validate(pizzaDto);
+        if (validationErrors.size() != 0) {
+            throw new InvalidObjectException("Invalid Pizza Create", validationErrors);
         }
-        MenuResponse menuResponse = menuMapper.responseFromModelOne(findMenu);
-
-
-
+        List<Pizza> pizzas = new ArrayList<>();
+        Menu menu = repo.findByRestaurantName(restaurantName);
+        Pizza pizza = pizzaMapper.modelFromCreateRequest(pizzaDto);
+        pizza.setUrl("http://localhost:8084/delivery/menu/pizza/" + pizza.getName());
+        pizza.setAddToCart("http://localhost:8084/delivery/cart/pizza?pizzaName=" + pizza.getName());
+        pizza.setMenu(menu);
+        pizzas.add(pizza);
+        menu.setPizzas(pizzas);
+        pizzaRepo.save(pizza);
+        repo.save(menu);
+        MenuResponse menuResponse = menuMapper.responseFromModelOne(menu);
         return menuResponse;
     }
-    public String create(MenuCreateRequest menuDto){
+    public MenuResponse create(MenuCreateRequest menuDto){
 
         Map<String, String> validationErrors = validator.validate(menuDto);
         if (validationErrors.size() != 0) {
@@ -227,7 +223,7 @@ public class MenuService {
         repo.save(menu);
         MenuResponse menuResponse = menuMapper.responseFromModelOne(menu);
 
-        return "It is created successfully!";
+        return menuResponse;
     }
     public MenuResponse update(MenuUpdateRequest menuDto,Menu menu){
         Map<String, String> validationErrors = validator.validate(menuDto);

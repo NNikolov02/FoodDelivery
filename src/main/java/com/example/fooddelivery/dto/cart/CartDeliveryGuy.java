@@ -9,6 +9,7 @@ import com.example.fooddelivery.dto.steak.SteakDto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
@@ -18,10 +19,11 @@ import java.util.UUID;
 public class CartDeliveryGuy {
     private UUID id;
     private String location;
-    private LocalTime createTime;
-    private LocalTime timeOfDelivery;
+    private LocalDateTime  createTime;
+    private LocalDateTime timeOfDelivery;
 
-    private CustomerDto customer;
+    private String customerName;
+    private String customerNumber;
     private DeliveryGuyDto deliveryGuy;
     private List<PizzaDto> pizzas;
     private List<SteakDto>steaks;

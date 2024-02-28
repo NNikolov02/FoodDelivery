@@ -3,21 +3,31 @@ package com.example.fooddelivery.service;
 import com.example.fooddelivery.dto.cart.CartDeliveryGuy;
 import com.example.fooddelivery.dto.cart.CartDto;
 import com.example.fooddelivery.dto.cart.CartResponse;
+import com.example.fooddelivery.dto.customer.CustomerDto;
 import com.example.fooddelivery.dto.deliveryguy.DeliverGuyResponsePrivate;
 import com.example.fooddelivery.dto.deliveryguy.DeliveryGuyCreateRequest;
 import com.example.fooddelivery.dto.deliveryguy.DeliveryGuyResponse;
 import com.example.fooddelivery.dto.deliveryguy.DeliveryGuyUpdateRequest;
+import com.example.fooddelivery.email.OnCartDeliveryGuy;
+import com.example.fooddelivery.email.OnForgotDeliveryGuy;
+import com.example.fooddelivery.email.OnRegistrationCompleteEventCustomer;
 import com.example.fooddelivery.error.InvalidObjectException;
+import com.example.fooddelivery.error.InvalidToken;
+import com.example.fooddelivery.error.NotFoundDeiveryGuyException;
 import com.example.fooddelivery.mapping.DeliveryGuyMapper;
 import com.example.fooddelivery.model.Cart;
 import com.example.fooddelivery.model.Customer;
 import com.example.fooddelivery.model.DeliveryGuy;
 import com.example.fooddelivery.model.Restaurant;
+import com.example.fooddelivery.repository.CustomerRepository;
 import com.example.fooddelivery.repository.DeliveryGuyPagingRepository;
 import com.example.fooddelivery.repository.DeliveryGuyRepository;
 import com.example.fooddelivery.repository.RestaurantRepository;
 import com.example.fooddelivery.validation.ObjectValidator;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
@@ -48,6 +58,10 @@ public class DeliveryGuyService {
     private RestaurantRepository restaurantRepo;
     @Autowired
     private CartService cartService;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+    @Autowired
+    private CustomerRepository customerRepo;
     public DeliveryGuy save(DeliveryGuy deliveryGuy){
         return repo.save(deliveryGuy);
     }
@@ -83,10 +97,14 @@ public class DeliveryGuyService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         DeliveryGuy authenticatedDeliveryGuy = repo.findByUsername(userDetails.getUsername());
         List<Cart>carts = authenticatedDeliveryGuy.getCarts();
-
+//        Customer customer = customerRepo.findCustomerByCartDeliveryGuy(authenticatedDeliveryGuy.getId());
+//        for(Cart cart:carts){
+//            cart.setCustomer(customer);
+//        }
         List<CartDeliveryGuy> cartsResponse = deliveryGuyMapper.responseFromCart(carts);
         for(CartDeliveryGuy cartDeliveryGuy:cartsResponse){
             cartDeliveryGuy.setIsDelivered("http://localhost:8084/delivery/deliveryGuy/" + cartDeliveryGuy.getId() + "/delivered"+ "?delivered=true");
+
         }
 
         return cartsResponse;
@@ -96,13 +114,14 @@ public class DeliveryGuyService {
         if (validationErrors.size() != 0) {
             throw new InvalidObjectException("Invalid DeliveryGuy Create", validationErrors);
         }
-        List<DeliveryGuy>deliveryGuys = new ArrayList<>();
+//        List<DeliveryGuy>deliveryGuys = new ArrayList<>();
         Restaurant restaurant = restaurantRepo.findByName(restaurantName);
         DeliveryGuy create = deliveryGuyMapper.modelFromCreateRequest(deliveryGuyDto);
         create.setRestaurant(restaurant);
         DeliveryGuy deliveryGuy = repo.save(create);
-        deliveryGuys.add(deliveryGuy);
-        restaurant.setDeliveryGuys(deliveryGuys);
+//        deliveryGuys.add(deliveryGuy);
+//        restaurant.setDeliveryGuys(deliveryGuys);
+        restaurant.getDeliveryGuys().add(deliveryGuy);
         restaurantRepo.save(restaurant);
         DeliveryGuyResponse deliveryGuyResponse = deliveryGuyMapper.responseFromModelOne(deliveryGuy);
 
@@ -145,6 +164,37 @@ public class DeliveryGuyService {
 
         return deliveryGuyResponse;
 
+    }
+    public void createVerificationToken(DeliveryGuy deliveryGuy, String token) {
+        System.out.println("Creating verification token for deliverGuy: " + deliveryGuy.getUsername());
+        System.out.println("Token: " + token);
+    }
+    public String forgotPassword(String email, HttpServletRequest request){
+        DeliveryGuy deliveryGuy = repo.findByEmail(email);
+
+        if(deliveryGuy != null){
+            String appUrl = request.getContextPath();
+            eventPublisher.publishEvent(new OnForgotDeliveryGuy(deliveryGuy, request.getLocale(), appUrl));
+        }else {
+            throw new NotFoundDeiveryGuyException("There is not such a account!");
+        }
+
+        return "Email has been sent!";
+    }
+    @Transactional
+    public String confirmAndChange(String token,String password){
+        List<String>tokens = new ArrayList<>();
+        tokens.add(token);
+        DeliveryGuy deliveryGuy = repo.findByTokensIn(tokens);
+        if(deliveryGuy != null){
+            deliveryGuyMapper.updateModelFromDtoPassword(password,deliveryGuy);
+            deliveryGuy.setTokens(null);
+            repo.save(deliveryGuy);
+        }else {
+            throw new InvalidToken("The token is invalid!");
+        }
+
+        return "The password is changed successfully!";
     }
 
 }

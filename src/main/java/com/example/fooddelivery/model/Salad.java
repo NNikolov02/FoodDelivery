@@ -27,6 +27,7 @@ public class Salad {
     private List<String> ingredients;
     private boolean vegetarian;
     private Integer price;
+    private Integer amount;
     private String url;
     private String addToCart;
 

@@ -1,36 +1,16 @@
 package com.example.fooddelivery.web;
 
-import com.example.fooddelivery.dto.cart.CartCreateRequest;
 import com.example.fooddelivery.dto.cart.CartResponse;
-import com.example.fooddelivery.dto.customer.CustomerResponse;
-import com.example.fooddelivery.dto.pasta.PastaCreateRequest;
-import com.example.fooddelivery.dto.pasta.PastaResponse;
-import com.example.fooddelivery.dto.steak.SteakResponse;
-import com.example.fooddelivery.error.InvalidObjectException;
 import com.example.fooddelivery.mapping.CartMapper;
-import com.example.fooddelivery.model.*;
-import com.example.fooddelivery.repository.CartRepository;
 import com.example.fooddelivery.repository.CustomerRepository;
-import com.example.fooddelivery.repository.PastaRepository;
-import com.example.fooddelivery.repository.PizzaRepository;
 import com.example.fooddelivery.service.CartService;
-import com.example.fooddelivery.service.PizzaService;
 import com.example.fooddelivery.validation.ObjectValidator;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.Authentication;
-
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/delivery/cart")

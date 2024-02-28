@@ -3,31 +3,24 @@ package com.example.fooddelivery.web;
 import com.example.fooddelivery.dto.menu.MenuCreateRequest;
 import com.example.fooddelivery.dto.menu.MenuResponse;
 import com.example.fooddelivery.dto.menu.MenuUpdateRequest;
+import com.example.fooddelivery.dto.pasta.PastaCreateRequest;
 import com.example.fooddelivery.dto.pasta.PastaResponse;
-import com.example.fooddelivery.dto.pasta.SetPastaRequest;
 import com.example.fooddelivery.dto.pizza.PizzaCreateRequest;
 import com.example.fooddelivery.dto.pizza.PizzaResponse;
-import com.example.fooddelivery.dto.pizza.SetPizzaRequest;
+import com.example.fooddelivery.dto.salad.SaladCreateRequest;
 import com.example.fooddelivery.dto.salad.SaladResponse;
-import com.example.fooddelivery.dto.salad.SetSaladRequest;
-import com.example.fooddelivery.dto.steak.SetSteakRequest;
+import com.example.fooddelivery.dto.steak.SteakCreateRequest;
 import com.example.fooddelivery.dto.steak.SteakResponse;
-import com.example.fooddelivery.error.InvalidObjectException;
 import com.example.fooddelivery.mapping.MenuMapper;
-import com.example.fooddelivery.mapping.PizzaMapper;
 import com.example.fooddelivery.model.*;
 import com.example.fooddelivery.repository.*;
 import com.example.fooddelivery.service.MenuService;
-import com.example.fooddelivery.service.PizzaService;
 import com.example.fooddelivery.service.RestaurantService;
-import com.example.fooddelivery.validation.ObjectValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/delivery/menu")
@@ -181,46 +174,43 @@ public class MenuController {
 //    }
 
     @PostMapping(value = "")
-    public ResponseEntity<String>createMenu(@RequestBody MenuCreateRequest menuDto){
-        String menuCreate = menuService.create(menuDto);
+    public ResponseEntity<MenuResponse>createMenu(@RequestBody MenuCreateRequest menuDto){
+        MenuResponse menuCreate = menuService.create(menuDto);
 
         return ResponseEntity.ok().body(menuCreate);
 
     }
-    @PutMapping(value = "/pizza")
-    public ResponseEntity<MenuResponse>putPizzaInTheMenu(@RequestBody SetPizzaRequest pizzaDto){
+    @PostMapping(value = "/{restaurantName}/createPizza")
+    public ResponseEntity<MenuResponse>createPizza(@RequestBody PizzaCreateRequest pizzaDto, @PathVariable String restaurantName){
+        MenuResponse pizzaResponse = menuService.createPizza(pizzaDto,restaurantName);
 
-        Menu findMenu = menuService.getMenu();
-        MenuResponse menuResponse = menuService.putPizza(findMenu,pizzaDto);
 
-        return ResponseEntity.ok().body(menuResponse);
+        return ResponseEntity.ok().body(pizzaResponse);
 
-    }
-    @PutMapping(value = "/pasta")
-    public ResponseEntity<MenuResponse>putPastaInTheMenu(@RequestBody SetPastaRequest pastaDto){
-
-        Menu findMenu = menuService.getMenu();
-        MenuResponse menuResponse = menuService.putPasta(findMenu,pastaDto);
-
-        return ResponseEntity.ok().body(menuResponse);
 
     }
-    @PutMapping(value = "/salad")
-    public ResponseEntity<MenuResponse>putSaladInTheMenu(@RequestBody SetSaladRequest saladDto){
+    @PostMapping(value = "/{restaurantName}/createPasta")
+    public ResponseEntity<MenuResponse> createPasta(@RequestBody PastaCreateRequest pastaDto,@PathVariable String restaurantName){
+        MenuResponse pastaResponse = menuService.createPasta(pastaDto,restaurantName);
 
-        Menu findMenu = menuService.getMenu();
-        MenuResponse menuResponse = menuService.putSalad(findMenu,saladDto);
+        return ResponseEntity.ok().body(pastaResponse);
 
-        return ResponseEntity.ok().body(menuResponse);
 
     }
-    @PutMapping(value = "/steak")
-    public ResponseEntity<MenuResponse>putSteakInTheMenu(@RequestBody SetSteakRequest steakDto){
-
-        Menu findMenu = menuService.getMenu();
-        MenuResponse menuResponse = menuService.putSteak(findMenu,steakDto);
+    @PostMapping(value = "/{restaurantName}/createSalad")
+    public ResponseEntity<MenuResponse> createSalad(@RequestBody SaladCreateRequest saladDto,@PathVariable String restaurantName){
+        MenuResponse menuResponse = menuService.createSalad(saladDto,restaurantName);
 
         return ResponseEntity.ok().body(menuResponse);
+
+
+    }
+    @PostMapping(value = "/{restaurantName}/createSteak")
+    public ResponseEntity<MenuResponse> createSteak(@RequestBody SteakCreateRequest steakDto, @PathVariable String restaurantName){
+        MenuResponse menuResponse = menuService.createSteak(steakDto,restaurantName);
+
+        return ResponseEntity.ok().body(menuResponse);
+
 
     }
     @PatchMapping(value = "")

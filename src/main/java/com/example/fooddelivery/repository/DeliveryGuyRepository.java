@@ -14,6 +14,8 @@ import java.util.UUID;
 public interface DeliveryGuyRepository extends CrudRepository<DeliveryGuy, UUID> {
 
     DeliveryGuy findByUsername(String name);
+    DeliveryGuy findByEmail(String email);
+    DeliveryGuy findByTokensIn(List<String> tokens);
     DeliveryGuy findByFirstNameAndLastName(String fisrtName,String lastName);
     void deleteByUsername(String name);
 

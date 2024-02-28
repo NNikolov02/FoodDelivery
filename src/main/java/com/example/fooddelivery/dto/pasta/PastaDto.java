@@ -9,4 +9,5 @@ public class PastaDto {
     private String name;
     private Integer price;
     private String url;
+    private Integer amount;
 }

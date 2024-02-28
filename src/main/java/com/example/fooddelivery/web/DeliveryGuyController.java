@@ -11,6 +11,7 @@ import com.example.fooddelivery.dto.restaurant.RestaurantApiPage;
 import com.example.fooddelivery.dto.restaurant.RestaurantResponse;
 import com.example.fooddelivery.mapping.DeliveryGuyMapper;
 import com.example.fooddelivery.service.DeliveryGuyService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,12 @@ public class DeliveryGuyController {
         Page<DeliveryGuyResponse> deliveryGuyPage = deliveryGuyService.fetchAll(currPage - 1, 10).map(deliveryGuyMapper::responseFromModelOne);
 
         return new DeliveryGuyApiPage<>(deliveryGuyPage);
+    }
+    @DeleteMapping("/{userName}")
+    public ResponseEntity<String>deleteByName(@PathVariable String userName){
+        deliveryGuyService.deleteByName(userName);
+
+        return ResponseEntity.ok("It is deleted successfully");
     }
     @GetMapping("/seeProfile")
     public ResponseEntity<DeliverGuyResponsePrivate>seeCredentials(Authentication authentication){
@@ -68,6 +75,20 @@ public class DeliveryGuyController {
         String deliveredCart = deliveryGuyService.deliveredCart(authentication,delivered,cartId);
 
         return ResponseEntity.ok(deliveredCart);
+    }
+    @PostMapping(value = "/forgotPassword")
+    public ResponseEntity<String>forgetPassword(@RequestParam String email, HttpServletRequest request){
+        String forgot = deliveryGuyService.forgotPassword(email,request);
+
+        return ResponseEntity.ok(forgot);
+
+    }
+    @PatchMapping(value = "/confirm")
+    public ResponseEntity<String>verifyToken(@RequestParam String token,@RequestParam String newPassword){
+        String confirm = deliveryGuyService.confirmAndChange(token,newPassword);
+
+        return ResponseEntity.ok(confirm);
+
     }
 
 }

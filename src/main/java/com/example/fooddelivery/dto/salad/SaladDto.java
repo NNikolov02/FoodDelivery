@@ -14,4 +14,5 @@ public class SaladDto {
     private boolean vegetarian;
     private Integer price;
     private String url;
+    private Integer amount;
 }

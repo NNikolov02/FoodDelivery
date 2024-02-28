@@ -26,6 +26,8 @@ public interface DeliveryGuyMapper {
 
     @Mapping(target = "available", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateModelFromDto(Boolean available, @MappingTarget DeliveryGuy deliveryGuy);
+    @Mapping(target = "password", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateModelFromDtoPassword(String password, @MappingTarget DeliveryGuy deliveryGuy);
     DeliveryGuyDto modelRoDto(DeliveryGuy deliveryGuy);
 
     DeliveryGuy dtoModel(DeliveryGuy deliveryGuyDto);

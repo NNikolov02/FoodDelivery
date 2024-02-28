@@ -101,9 +101,9 @@ public class RestaurantService {
 //            menuService.save(menu);
             repo.save(restaurant);
 
-
         }
         return "It is put!";
+
     }
     public String putDeliveryGuy(String name,String firstName,String lastName){
         Restaurant restaurant = repo.findByName(name);

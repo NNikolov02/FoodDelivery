@@ -26,6 +26,7 @@ public class Pasta {
     private String pastaType;
     private String sauce;
     private Integer price;
+    private Integer amount;
     private String url;
     private String addToCart;
 

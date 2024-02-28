@@ -14,6 +14,6 @@ public interface MenuRepository extends CrudRepository<Menu, UUID> {
 
     Menu findByName(String name);
     void deleteByName(String name);
-//    @Query("SELECT d FROM Menu d JOIN d.restaurant c WHERE c.name = :restaurantName")
-//    Menu findByRestaurantName(@Param("restaurantName") String restaurantName);
+    @Query("SELECT d FROM Menu d JOIN d.restaurants c WHERE c.name = :restaurantName")
+    Menu findByRestaurantName(@Param("restaurantName") String restaurantName);
 }

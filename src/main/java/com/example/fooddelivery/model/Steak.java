@@ -26,6 +26,7 @@ public class Steak {
     private String steakType;
     private String cookingLevel;
     private Integer price;
+    private Integer amount;
     private String url;
     private String addToCart;
 

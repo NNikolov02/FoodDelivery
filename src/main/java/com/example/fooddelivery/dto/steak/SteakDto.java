@@ -11,4 +11,5 @@ public class SteakDto {
     private String cookingLevel;
     private Integer price;
     private String url;
+    private Integer amount;
 }

@@ -31,6 +31,9 @@ public class Customer {
     private String phoneNumber;
 
     private String address;
+    @ElementCollection
+    private List<String>tokens;
+
     private  String url;
 
     @Column(name = "has_rated")
