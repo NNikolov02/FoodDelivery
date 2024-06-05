@@ -34,18 +34,10 @@ public class CustomerController {
 
 
     @GetMapping(value = "", produces = "application/json")
-    public CustomerApiPage<CustomerResponse> getAllCarts(
-            @RequestParam(required = false, defaultValue = "1") Integer currPage ){
-
+    public CustomerApiPage<CustomerResponse> getAllCustomers(
+            @RequestParam(required = false, defaultValue = "1") Integer currPage) {
 
         Page<CustomerResponse> customerPage = customerService.fetchAll(currPage - 1, 10).map(customerMapper::responseFromModelOne);
-
-//        for (CustomerResponse response : customerPage) {
-//
-//            response.setUrl("http://localhost:8086/healthcare/customers/" + response.getUsername());
-//
-//
-//        }
         return new CustomerApiPage<>(customerPage);
     }
 

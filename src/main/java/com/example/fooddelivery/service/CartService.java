@@ -62,10 +62,9 @@ public class CartService {
     }
     public void removeCart(Cart cart) {
         if (cart != null) {
-            // Remove associations with other entities (if needed)
-            cart.setDeliveryGuy(null); // Assuming there is a reference from Cart to DeliveryGuy
 
-            // Save changes to remove associations
+            cart.setDeliveryGuy(null);
+
             repo.save(cart);
 
         }
@@ -114,7 +113,7 @@ public class CartService {
         DeliveryGuy deliveryGuy = cart.getDeliveryGuy();
 
         if(authenticatedCustomer.getCart() != null){
-            LocalDateTime time = LocalDateTime .now().plusMinutes(45);
+            LocalDateTime time = LocalDateTime.now().plusMinutes(45);
             cart.setTimeOfDelivery(time);
             repo.save(cart);
             String appUrl = request.getContextPath();

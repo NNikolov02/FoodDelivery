@@ -18,13 +18,7 @@ public class CartController {
 
     @Autowired
     private CartService cartService;
-    @Autowired
-    private CartMapper cartMapper;
-    @Autowired
-    private CustomerRepository customerRepo;
 
-    @Autowired
-    private ObjectValidator validator;
 
 //    @PostMapping(value = "")
 //    public ResponseEntity<CartResponse> createCart(@RequestBody CartCreateRequest cartDto){
